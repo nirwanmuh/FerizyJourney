@@ -71,8 +71,8 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # --- BAGIAN GENERASI GAMBAR (Menggunakan .jpg) ---
                 
-                img_width = 720
-                img_height = 1280 
+                img_width = 1080
+                img_height = 1920 
                 image = None
                 
                 try:
@@ -135,8 +135,8 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 text_color_yellow = (255, 215, 0) 
 
                 # Posisi Teks
-                y_offset = 60
-                left_margin = 60
+                y_offset = 0
+                left_margin = 40
 
                 # ferizy logo
                 #draw.text((left_margin, y_offset), "ferizy", fill=text_color_white, font=font_ferizy_logo)
@@ -152,7 +152,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
-                y_offset += 200
+                y_offset += 535
 
                 # TOP LINTASANMU
                 draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
