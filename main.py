@@ -114,8 +114,8 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Load Font (Pastikan file font tersedia jika tidak ingin menggunakan default)
                 try:
-                    font_path_bold = "arialbd.ttf"
-                    font_path_regular = "arial.ttf" 
+                    font_path_bold = "montserrat.ttf"
+                    font_path_regular = "montserrat.ttf" 
                     
                     font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
                     font_journey = ImageFont.truetype(font_path_regular, 40)
