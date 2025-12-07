@@ -152,7 +152,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
-                y_offset += 535
+                y_offset += 0
 
                 # TOP LINTASANMU
                 draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
