@@ -6,8 +6,8 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 
 st.set_page_config(layout="centered")
-
-st.title("Web Scraping & Generate Gambar Rekap Ferizy")
+st.set_page_config(page_title="Ferizy Journey")
+st.title("Ferizy Journey")
 st.markdown("---")
 
 # Text area untuk paste HTML
@@ -46,10 +46,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
             df = df[(df["Jadwal"] != "") & (df["Lintasan"] != "")].reset_index(drop=True)
             
             if not df.empty:
-                # --- Statistik dan Rekapitulasi (Tidak Berubah) ---
-                total_perjalanan = len(df)
-                top_lintasan = df["Lintasan"].value_counts().nlargest(3)
-                
+                # --- Pemisahan Tanggal/Jam (Tidak Berubah) ---
                 def split_date_time(jadwal):
                     match = re.search(r"(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})", jadwal)
                     if match:
@@ -58,9 +55,34 @@ if st.button("Scrape & Generate Gambar Rekap"):
                         return pd.Series(["", ""])
                 
                 df[["Tanggal", "Jam"]] = df["Jadwal"].apply(split_date_time)
+                
+                # --- START: PERUBAHAN UTAMA UNTUK FILTER TAHUN 2025 ---
+                
+                # Konversi Tanggal ke datetime untuk pemfilteran yang lebih baik (jika perlu)
+                df['Tanggal_DT'] = pd.to_datetime(df['Tanggal'], errors='coerce')
+                
+                # Filter hanya perjalanan di tahun 2025
+                df_filtered = df[df['Tanggal_DT'].dt.year == 2025].copy()
+                
+                # Jika tidak ada data di tahun 2025, tampilkan peringatan dan keluar
+                if df_filtered.empty:
+                    st.warning("Tidak ditemukan perjalanan Ferizy yang valid di tahun **2025** setelah pemfilteran.")
+                    return
+                
+                # Lanjutkan dengan dataframe yang sudah difilter
+                df = df_filtered
+                
+                # Hapus kolom sementara Tanggal_DT
+                df.drop(columns=['Tanggal_DT'], inplace=True)
+                
+                # --- END: PERUBAHAN UTAMA ---
+                
+                # --- Statistik dan Rekapitulasi (Meneruskan dengan df yang sudah difilter) ---
+                total_perjalanan = len(df)
+                top_lintasan = df["Lintasan"].value_counts().nlargest(3)
+                
                 df["Jam_Keberangkatan"] = pd.to_datetime(df["Jam"], format='%H:%M', errors='coerce').dt.hour
                 
-                # --- PERUBAHAN LOGIKA DI SINI ---
                 # Hitung perjalanan antara jam 18:00 (6 sore) hingga 05:00 (5 pagi)
                 # Jam 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5
                 nocturnal_count = df[
@@ -73,9 +95,8 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 else:
                     tipe_kamu = "Morning Person"
                     deskripsi_tipe = "Anak baik-baik keluar pagi"
-                # --- AKHIR PERUBAHAN LOGIKA ---
-
-                # --- BAGIAN GENERASI GAMBAR (Menggunakan .jpg) ---
+                
+                # --- BAGIAN GENERASI GAMBAR ---
                 
                 img_width = 1080
                 img_height = 1920
@@ -83,14 +104,9 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 
                 try:
                     # **Muat Gambar Background JPG**
-                    # .convert("RGB") memastikan gambar tidak memiliki channel alpha (transparansi)
                     background_img = Image.open(BACKGROUND_IMAGE_PATH).convert("RGB")
-                    
-                    # Resize gambar agar sesuai dengan ukuran output
                     background_img = background_img.resize((img_width, img_height))
-                    
                     image = background_img.copy()
-                                            
                     st.success(f"Berhasil memuat gambar background dari: {BACKGROUND_IMAGE_PATH}")
                     
                 except FileNotFoundError:
@@ -140,80 +156,57 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 text_color_grey = (200, 200, 200)
                 text_color_yellow = (255, 215, 0)
 
-                # Posisi Teks
+                # Posisi Teks (Diasumsikan sama karena Anda hanya memfilter data)
                 y_offset = 535
                 left_margin = 50
 
-                # ferizy logo (di-comment di kode asli, tidak diubah)
-                #draw.text((left_margin, y_offset), "ferizy", fill=text_color_white, font=font_ferizy_logo)
-                #y_offset += 85
-                #draw.text((left_margin, y_offset), "JOURNEY 2025", fill=text_color_white, font=font_journey)
-                #y_offset += 120
-
-                # "Tahun ini kamu udah nyebrang..." (di-comment di kode asli, tidak diubah)
-                #draw.text((left_margin, y_offset), "Tahun ini kamu udah nyebrang", fill=text_color_white, font=font_header_medium)
-                #y_offset += 40
-                #draw.text((left_margin, y_offset), "sama ferizy sebanyak", fill=text_color_white, font=font_header_medium)
-                #y_offset += 80
-
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
-                #y_offset += 50
-
-                # TOP LINTASANMU (di-comment di kode asli, tidak diubah)
-                #draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
-                #y_offset += 50
+                
+                # TOP LINTASANMU
                 y_offset = 835
                 for i, (lintasan, count) in enumerate(top_lintasan.items()):
                     draw.text((left_margin, y_offset), f"{i+1}. {lintasan} : {count} Kali", fill=text_color_white, font=font_top_item)
                     y_offset += 70
-                #y_offset += 50
 
                 # Tipe Kamu
-                #draw.text((left_margin, y_offset), "Tipe Kamu", fill=text_color_grey, font=font_section_title)
-                #y_offset += 50
                 y_offset = 1298
                 draw.text((left_margin, y_offset), tipe_kamu.upper(), fill=text_color_white, font=font_type_large)
                 y_offset += 125
                 draw.text((left_margin, y_offset), deskripsi_tipe, fill=text_color_white, font=font_type_desc)
                 
-                # Footer (di-comment di kode asli, tidak diubah)
-                #draw.text((img_width - left_margin - 300, img_height - 60), "https://s.id/FerizyJourney", fill=text_color_grey, font=font_footer)
-
-
                 # Simpan gambar ke buffer dan tampilkan
                 img_buffer = io.BytesIO()
-                # Simpan sebagai PNG agar kualitas teks tetap bagus
                 image.save(img_buffer, format="PNG")
                 img_buffer.seek(0)
 
                 st.markdown("## ✨ Rekap Ferizy Journey 2025 Anda (Gambar)")
-                st.image(img_buffer, caption="Rekap Perjalanan Ferizy Anda", use_column_width=True)
+                st.image(img_buffer, caption=f"Rekap Perjalanan Ferizy Anda di tahun 2025 ({total_perjalanan} Perjalanan)", use_column_width=True)
 
                 # Tambahkan tombol download gambar
                 st.download_button(
                     label="Download Gambar Rekap",
                     data=img_buffer,
-                    file_name="ferizy_journey_rekap.png",
+                    file_name="ferizy_journey_rekap_2025.png",
                     mime="image/png"
                 )
 
                 st.markdown("---")
                 # --- Tampilkan Data Mentah ---
                 
-                df.drop(columns=["Jadwal", "Jam_Keberangkatan"], inplace=True)
+                #df.drop(columns=["Jadwal", "Jam_Keberangkatan", "Jam"], inplace=True)
                 
-                st.write(f"Ditemukan {total_perjalanan} jadwal setelah normalisasi & pemisahan Tanggal/Jam")
-                st.dataframe(df)
-                
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="Download CSV Data Perjalanan",
-                    data=csv,
-                    file_name="jadwal_normalized.csv",
-                    mime="text/csv"
-                )
+                #st.write(f"Ditemukan **{total_perjalanan}** jadwal yang valid di tahun **2025**.")
+                #st.dataframe(df)
+                #
+                #csv = df.to_csv(index=False).encode('utf-8')
+                #st.download_button(
+                #    label="Download CSV Data Perjalanan 2025",
+                #    data=csv,
+                #    file_name="jadwal_2025_normalized.csv",
+                #    mime="text/csv"
+                #)
             else:
-                st.warning("Tidak ditemukan data jadwal yang valid setelah normalisasi.")
+                st.warning("Tidak ditemukan data jadwal yang valid.")
         except Exception as e:
             st.error(f"Terjadi kesalahan: {e}")
