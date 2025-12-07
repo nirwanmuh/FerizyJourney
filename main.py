@@ -14,15 +14,15 @@ st.markdown("---")
 html_input = st.text_area("Paste HTML Riwayat Perjalanan Ferizy di sini:")
 
 # GANTI NAMA FILE INI DENGAN NAMA FILE .JPG BACKGROUND ANDA YANG SEBENARNYA
-BACKGROUND_IMAGE_PATH = "FerizyJourney2025.jpg" 
-# Pastikan file .jpg ada di folder yang sama!
+BACKGROUND_IMAGE_PATH = "my_background.jpg" 
+# Pastikan file .jpg ini ada di folder yang sama dengan script Streamlit Anda!
 
 if st.button("Scrape & Generate Gambar Rekap"):
     if not html_input.strip():
         st.error("Silakan masukkan HTML terlebih dahulu!")
     else:
         try:
-            # --- Bagian Scraping Data (Tidak Berubah) ---
+            # --- Bagian Scraping Data ---
             soup = BeautifulSoup(html_input, "html.parser")
             div_elements = soup.find_all("div", {"data-v-28aa75d9": True})
             
@@ -46,7 +46,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
             df = df[(df["Jadwal"] != "") & (df["Lintasan"] != "")].reset_index(drop=True)
             
             if not df.empty:
-                # --- Statistik dan Rekapitulasi (Tidak Berubah) ---
+                # --- Statistik dan Rekapitulasi ---
                 total_perjalanan = len(df)
                 top_lintasan = df["Lintasan"].value_counts().nlargest(3)
                 
@@ -69,54 +69,34 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     tipe_kamu = "Diurnal"
                     deskripsi_tipe = "Kamu suka bepergian di siang/sore hari"
 
-                # --- BAGIAN GENERASI GAMBAR (Menggunakan .jpg) ---
+                # --- BAGIAN GENERASI GAMBAR (Memuat JPG & Menempelkan Teks) ---
                 
                 img_width = 720
                 img_height = 1280 
                 image = None
                 
                 try:
-                    # **Muat Gambar Background JPG**
-                    # .convert("RGB") memastikan gambar tidak memiliki channel alpha (transparansi)
+                    # 1. Muat Gambar Background JPG
                     background_img = Image.open(BACKGROUND_IMAGE_PATH).convert("RGB") 
                     
-                    # Resize gambar agar sesuai dengan ukuran output
-                    background_img = background_img.resize((img_width, img_height))
+                    # 2. Resize gambar agar sesuai dengan ukuran output
+                    image = background_img.resize((img_width, img_height))
                     
-                    image = background_img.copy()
-                    
-                    # Tambahkan overlay hitam semi-transparan agar teks putih lebih jelas
-                    overlay = Image.new('RGBA', image.size, (0, 0, 0, 150)) 
+                    # 3. Tambahkan overlay (OPSIONAL, jika teks sulit dibaca di background terang)
+                    # Jika background Anda sudah gelap, Anda bisa menghapus 3 baris di bawah ini
+                    overlay = Image.new('RGBA', image.size, (0, 0, 0, 150)) # Overlay hitam 60% transparan
                     image.paste(overlay, (0, 0), overlay)
                     
-                    st.success(f"Berhasil memuat gambar background dari: {BACKGROUND_IMAGE_PATH}")
+                    st.success(f"Berhasil memuat gambar background: {BACKGROUND_IMAGE_PATH}. Teks akan ditempelkan di atasnya.")
                     
                 except FileNotFoundError:
-                    st.warning(f"File background '{BACKGROUND_IMAGE_PATH}' tidak ditemukan. Menggunakan background gradient default (biru-putih).")
-                    
-                    # --- Fallback ke Kode Gradient Biru ---
-                    image = Image.new('RGB', (img_width, img_height), color = 'white')
-                    color1 = (26, 115, 232)
-                    color2 = (66, 133, 244)
-                    color3 = (255, 255, 255)
-                    for y in range(img_height):
-                        if y < img_height * 0.5:
-                            ratio = y / (img_height * 0.5)
-                            r = int(color1[0] * (1 - ratio) + color2[0] * ratio)
-                            g = int(color1[1] * (1 - ratio) + color2[1] * ratio)
-                            b = int(color1[2] * (1 - ratio) + color2[2] * ratio)
-                        else:
-                            ratio = (y - img_height * 0.5) / (img_height * 0.5)
-                            r = int(color2[0] * (1 - ratio) + color3[0] * ratio)
-                            g = int(color2[1] * (1 - ratio) + color3[1] * ratio)
-                            b = int(color2[2] * (1 - ratio) + color3[2] * ratio)
-                        draw_temp = ImageDraw.Draw(image)
-                        draw_temp.line([(0, y), (img_width, y)], fill=(r, g, b))
-                    # --- Akhir Fallback Gradient ---
+                    st.error(f"File background '{BACKGROUND_IMAGE_PATH}' TIDAK DITEMUKAN. Tidak dapat membuat gambar.")
+                    return # Hentikan proses jika gambar tidak ditemukan
 
                 draw = ImageDraw.Draw(image)
 
                 # Load Font (Pastikan file font tersedia jika tidak ingin menggunakan default)
+                # Jika font tidak ditemukan, kode akan fallback ke font default Pillow
                 try:
                     font_path_bold = "arialbd.ttf"
                     font_path_regular = "arial.ttf" 
@@ -138,7 +118,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 text_color_grey = (200, 200, 200)
                 text_color_yellow = (255, 215, 0) 
 
-                # Posisi Teks
+                # Posisi Teks (Pengaturan posisi di bawah ini akan menempelkan teks di atas gambar)
                 y_offset = 60
                 left_margin = 60
 
@@ -179,7 +159,6 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Simpan gambar ke buffer dan tampilkan
                 img_buffer = io.BytesIO()
-                # Simpan sebagai PNG agar kualitas teks tetap bagus
                 image.save(img_buffer, format="PNG") 
                 img_buffer.seek(0) 
 
@@ -210,6 +189,3 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     mime="text/csv"
                 )
             else:
-                st.warning("Tidak ditemukan data jadwal yang valid setelah normalisasi.")
-        except Exception as e:
-            st.error(f"Terjadi kesalahan: {e}")
