@@ -17,7 +17,7 @@ html_input = st.text_area("Paste HTML Riwayat Perjalanan Ferizy di sini:")
 BACKGROUND_IMAGE_PATH = "FerizyJourney2025.jpg"
 # Pastikan file .jpg ada di folder yang sama!
 
-if st.button("Scrape & Generate Gambar Rekap"):
+if st.button("Generate"):
     if not html_input.strip():
         st.error("Silakan masukkan HTML terlebih dahulu!")
     else:
