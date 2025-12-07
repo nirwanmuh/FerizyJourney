@@ -120,7 +120,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
                     font_journey = ImageFont.truetype(font_path_regular, 40)
                     font_header_medium = ImageFont.truetype(font_path_regular, 30)
-                    font_total_count = ImageFont.truetype(font_path_bold, 105px)
+                    font_total_count = ImageFont.truetype(font_path_bold, 1000)
                     font_section_title = ImageFont.truetype(font_path_regular, 35)
                     font_top_item = ImageFont.truetype(font_path_regular, 40)
                     font_type_large = ImageFont.truetype(font_path_bold, 80)
