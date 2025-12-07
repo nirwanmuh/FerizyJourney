@@ -135,7 +135,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 text_color_yellow = (255, 215, 0) 
 
                 # Posisi Teks
-                y_offset = 0
+                y_offset = 535
                 left_margin = 40
 
                 # ferizy logo
@@ -152,7 +152,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
-                y_offset += 0
+                y_offset += 50
 
                 # TOP LINTASANMU
                 draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
