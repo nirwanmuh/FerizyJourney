@@ -157,10 +157,10 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 # TOP LINTASANMU
                 #draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
                 #y_offset += 50
-                y_offset = 960
+                y_offset = 835
                 for i, (lintasan, count) in enumerate(top_lintasan.items()):
                     draw.text((left_margin, y_offset), f"{i+1}. {lintasan} : {count} Kali", fill=text_color_white, font=font_top_item)
-                    y_offset += 10
+                    y_offset += 55
                 #y_offset += 50
 
                 # Tipe Kamu
