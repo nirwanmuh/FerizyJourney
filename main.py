@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import re
 from PIL import Image, ImageDraw, ImageFont
-import io 
+import io
 
 st.set_page_config(layout="centered")
 
@@ -14,7 +14,7 @@ st.markdown("---")
 html_input = st.text_area("Paste HTML Riwayat Perjalanan Ferizy di sini:")
 
 # GANTI NAMA FILE INI DENGAN NAMA FILE .JPG BACKGROUND ANDA YANG SEBENARNYA
-BACKGROUND_IMAGE_PATH = "FerizyJourney2025.jpg" 
+BACKGROUND_IMAGE_PATH = "FerizyJourney2025.jpg"
 # Pastikan file .jpg ada di folder yang sama!
 
 if st.button("Scrape & Generate Gambar Rekap"):
@@ -60,31 +60,37 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 df[["Tanggal", "Jam"]] = df["Jadwal"].apply(split_date_time)
                 df["Jam_Keberangkatan"] = pd.to_datetime(df["Jam"], format='%H:%M', errors='coerce').dt.hour
                 
-                nocturnal_count = df[(df["Jam_Keberangkatan"] >= 22) | (df["Jam_Keberangkatan"] <= 4)].shape[0]
-                
+                # --- PERUBAHAN LOGIKA DI SINI ---
+                # Hitung perjalanan antara jam 18:00 (6 sore) hingga 05:00 (5 pagi)
+                # Jam 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5
+                nocturnal_count = df[
+                    (df["Jam_Keberangkatan"] >= 18) | (df["Jam_Keberangkatan"] <= 5)
+                ].shape[0]
+
                 if total_perjalanan > 0 and (nocturnal_count / total_perjalanan) > 0.5:
                     tipe_kamu = "Nokturnal"
-                    deskripsi_tipe = "Kamu suka bepergian di malam hari"
+                    deskripsi_tipe = "Demen banget keluar malem"
                 else:
-                    tipe_kamu = "Diurnal"
-                    deskripsi_tipe = "Kamu suka bepergian di siang/sore hari"
+                    tipe_kamu = "Morning Person"
+                    deskripsi_tipe = "Anak baik-baik keluar pagi"
+                # --- AKHIR PERUBAHAN LOGIKA ---
 
                 # --- BAGIAN GENERASI GAMBAR (Menggunakan .jpg) ---
                 
                 img_width = 1080
-                img_height = 1920 
+                img_height = 1920
                 image = None
                 
                 try:
                     # **Muat Gambar Background JPG**
                     # .convert("RGB") memastikan gambar tidak memiliki channel alpha (transparansi)
-                    background_img = Image.open(BACKGROUND_IMAGE_PATH).convert("RGB") 
+                    background_img = Image.open(BACKGROUND_IMAGE_PATH).convert("RGB")
                     
                     # Resize gambar agar sesuai dengan ukuran output
                     background_img = background_img.resize((img_width, img_height))
                     
                     image = background_img.copy()
-                                        
+                                            
                     st.success(f"Berhasil memuat gambar background dari: {BACKGROUND_IMAGE_PATH}")
                     
                 except FileNotFoundError:
@@ -115,7 +121,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 # Load Font (Pastikan file font tersedia jika tidak ingin menggunakan default)
                 try:
                     font_path_bold = "Montserrat-Black.ttf"
-                    font_path_regular = "Montserrat-Regular.ttf" 
+                    font_path_regular = "Montserrat-Regular.ttf"
                     
                     font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
                     font_journey = ImageFont.truetype(font_path_regular, 40)
@@ -132,19 +138,19 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 text_color_white = (255, 255, 255)
                 text_color_grey = (200, 200, 200)
-                text_color_yellow = (255, 215, 0) 
+                text_color_yellow = (255, 215, 0)
 
                 # Posisi Teks
                 y_offset = 535
-                left_margin = 40
+                left_margin = 50
 
-                # ferizy logo
+                # ferizy logo (di-comment di kode asli, tidak diubah)
                 #draw.text((left_margin, y_offset), "ferizy", fill=text_color_white, font=font_ferizy_logo)
-                #y_offset += 85 
+                #y_offset += 85
                 #draw.text((left_margin, y_offset), "JOURNEY 2025", fill=text_color_white, font=font_journey)
                 #y_offset += 120
 
-                # "Tahun ini kamu udah nyebrang..."
+                # "Tahun ini kamu udah nyebrang..." (di-comment di kode asli, tidak diubah)
                 #draw.text((left_margin, y_offset), "Tahun ini kamu udah nyebrang", fill=text_color_white, font=font_header_medium)
                 #y_offset += 40
                 #draw.text((left_margin, y_offset), "sama ferizy sebanyak", fill=text_color_white, font=font_header_medium)
@@ -154,13 +160,13 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
                 #y_offset += 50
 
-                # TOP LINTASANMU
+                # TOP LINTASANMU (di-comment di kode asli, tidak diubah)
                 #draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
                 #y_offset += 50
                 y_offset = 835
                 for i, (lintasan, count) in enumerate(top_lintasan.items()):
                     draw.text((left_margin, y_offset), f"{i+1}. {lintasan} : {count} Kali", fill=text_color_white, font=font_top_item)
-                    y_offset += 65
+                    y_offset += 70
                 #y_offset += 50
 
                 # Tipe Kamu
@@ -171,15 +177,15 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 y_offset += 125
                 draw.text((left_margin, y_offset), deskripsi_tipe, fill=text_color_white, font=font_type_desc)
                 
-                # Footer
+                # Footer (di-comment di kode asli, tidak diubah)
                 #draw.text((img_width - left_margin - 300, img_height - 60), "https://s.id/FerizyJourney", fill=text_color_grey, font=font_footer)
 
 
                 # Simpan gambar ke buffer dan tampilkan
                 img_buffer = io.BytesIO()
                 # Simpan sebagai PNG agar kualitas teks tetap bagus
-                image.save(img_buffer, format="PNG") 
-                img_buffer.seek(0) 
+                image.save(img_buffer, format="PNG")
+                img_buffer.seek(0)
 
                 st.markdown("## ✨ Rekap Ferizy Journey 2025 Anda (Gambar)")
                 st.image(img_buffer, caption="Rekap Perjalanan Ferizy Anda", use_column_width=True)
