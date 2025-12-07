@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import re
 from PIL import Image, ImageDraw, ImageFont
-import io # Untuk menyimpan gambar ke buffer
+import io 
 
 st.set_page_config(layout="centered")
 
@@ -13,14 +13,17 @@ st.markdown("---")
 # Text area untuk paste HTML
 html_input = st.text_area("Paste HTML Riwayat Perjalanan Ferizy di sini:")
 
+# GANTI NAMA FILE INI DENGAN NAMA FILE .JPG BACKGROUND ANDA YANG SEBENARNYA
+BACKGROUND_IMAGE_PATH = "FerizyJourney2025.jpg" 
+# Pastikan file .jpg ada di folder yang sama!
+
 if st.button("Scrape & Generate Gambar Rekap"):
     if not html_input.strip():
         st.error("Silakan masukkan HTML terlebih dahulu!")
     else:
         try:
+            # --- Bagian Scraping Data (Tidak Berubah) ---
             soup = BeautifulSoup(html_input, "html.parser")
-            
-            # Ambil semua div yang memiliki class flex di dalamnya
             div_elements = soup.find_all("div", {"data-v-28aa75d9": True})
             
             data = []
@@ -37,16 +40,13 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     jadwal = ''.join(jadwal_span.find_all(text=True, recursive=False)).strip()
                     jadwal = jadwal.replace("Reguler", "").replace("·", "").strip()
                 
-                data.append({
-                    "Lintasan": lintasan,
-                    "Jadwal": jadwal
-                })
+                data.append({"Lintasan": lintasan, "Jadwal": jadwal})
             
             df = pd.DataFrame(data)
             df = df[(df["Jadwal"] != "") & (df["Lintasan"] != "")].reset_index(drop=True)
             
             if not df.empty:
-                # --- Statistik dan Rekapitulasi ---
+                # --- Statistik dan Rekapitulasi (Tidak Berubah) ---
                 total_perjalanan = len(df)
                 top_lintasan = df["Lintasan"].value_counts().nlargest(3)
                 
@@ -69,90 +69,82 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     tipe_kamu = "Diurnal"
                     deskripsi_tipe = "Kamu suka bepergian di siang/sore hari"
 
-                # --- Bagian Generasi Gambar dengan Pillow ---
+                # --- BAGIAN GENERASI GAMBAR (Menggunakan .jpg) ---
                 
-                # Ukuran gambar (sesuaikan jika perlu)
                 img_width = 720
                 img_height = 1280 
+                image = None
                 
-                # Buat gambar dengan background gradient
-                image = Image.new('RGB', (img_width, img_height), color = 'white')
+                try:
+                    # **Muat Gambar Background JPG**
+                    # .convert("RGB") memastikan gambar tidak memiliki channel alpha (transparansi)
+                    background_img = Image.open(BACKGROUND_IMAGE_PATH).convert("RGB") 
+                    
+                    # Resize gambar agar sesuai dengan ukuran output
+                    background_img = background_img.resize((img_width, img_height))
+                    
+                    image = background_img.copy()
+                    
+                    # Tambahkan overlay hitam semi-transparan agar teks putih lebih jelas
+                    overlay = Image.new('RGBA', image.size, (0, 0, 0, 150)) 
+                    image.paste(overlay, (0, 0), overlay)
+                    
+                    st.success(f"Berhasil memuat gambar background dari: {BACKGROUND_IMAGE_PATH}")
+                    
+                except FileNotFoundError:
+                    st.warning(f"File background '{BACKGROUND_IMAGE_PATH}' tidak ditemukan. Menggunakan background gradient default (biru-putih).")
+                    
+                    # --- Fallback ke Kode Gradient Biru ---
+                    image = Image.new('RGB', (img_width, img_height), color = 'white')
+                    color1 = (26, 115, 232)
+                    color2 = (66, 133, 244)
+                    color3 = (255, 255, 255)
+                    for y in range(img_height):
+                        if y < img_height * 0.5:
+                            ratio = y / (img_height * 0.5)
+                            r = int(color1[0] * (1 - ratio) + color2[0] * ratio)
+                            g = int(color1[1] * (1 - ratio) + color2[1] * ratio)
+                            b = int(color1[2] * (1 - ratio) + color2[2] * ratio)
+                        else:
+                            ratio = (y - img_height * 0.5) / (img_height * 0.5)
+                            r = int(color2[0] * (1 - ratio) + color3[0] * ratio)
+                            g = int(color2[1] * (1 - ratio) + color3[1] * ratio)
+                            b = int(color2[2] * (1 - ratio) + color3[2] * ratio)
+                        draw_temp = ImageDraw.Draw(image)
+                        draw_temp.line([(0, y), (img_width, y)], fill=(r, g, b))
+                    # --- Akhir Fallback Gradient ---
+
                 draw = ImageDraw.Draw(image)
 
-                # Warna gradient (biru Ferizy)
-                color1 = (26, 115, 232) # Biru tua
-                color2 = (66, 133, 244) # Biru agak terang
-                color3 = (255, 255, 255) # Putih
-
-                for y in range(img_height):
-                    if y < img_height * 0.5: # Bagian atas gradient biru tua ke biru terang
-                        ratio = y / (img_height * 0.5)
-                        r = int(color1[0] * (1 - ratio) + color2[0] * ratio)
-                        g = int(color1[1] * (1 - ratio) + color2[1] * ratio)
-                        b = int(color1[2] * (1 - ratio) + color2[2] * ratio)
-                    else: # Bagian bawah gradient biru terang ke putih
-                        ratio = (y - img_height * 0.5) / (img_height * 0.5)
-                        r = int(color2[0] * (1 - ratio) + color3[0] * ratio)
-                        g = int(color2[1] * (1 - ratio) + color3[1] * ratio)
-                        b = int(color2[2] * (1 - ratio) + color3[2] * ratio)
-                    
-                    draw.line([(0, y), (img_width, y)], fill=(r, g, b))
-
-                # Load Font (anda bisa menggunakan font default atau mendownload font tertentu)
+                # Load Font (Pastikan file font tersedia jika tidak ingin menggunakan default)
                 try:
-                    # Ganti 'arial.ttf' dengan path font yang ada di sistem anda
-                    # Atau letakkan file .ttf di folder yang sama dengan script ini
-                    font_path_bold = "arialbd.ttf" # Bold font
-                    font_path_regular = "arial.ttf" # Regular font
+                    font_path_bold = "arialbd.ttf"
+                    font_path_regular = "arial.ttf" 
                     
-                    # Coba beberapa nama font umum jika arial.ttf tidak ditemukan
-                    # atau sediakan font di folder project
-                    try:
-                        font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
-                        font_journey = ImageFont.truetype(font_path_regular, 40)
-                        font_header_medium = ImageFont.truetype(font_path_regular, 30)
-                        font_total_count = ImageFont.truetype(font_path_bold, 100)
-                        font_section_title = ImageFont.truetype(font_path_regular, 35)
-                        font_top_item = ImageFont.truetype(font_path_regular, 40)
-                        font_type_large = ImageFont.truetype(font_path_bold, 80)
-                        font_type_desc = ImageFont.truetype(font_path_regular, 35)
-                        font_footer = ImageFont.truetype(font_path_regular, 25)
-                    except IOError:
-                        # Fallback to default font if custom font not found
-                        st.warning("Custom font tidak ditemukan, menggunakan font default. Tampilan mungkin berbeda.")
-                        font_ferizy_logo = ImageFont.load_default()
-                        font_journey = ImageFont.load_default()
-                        font_header_medium = ImageFont.load_default()
-                        font_total_count = ImageFont.load_default()
-                        font_section_title = ImageFont.load_default()
-                        font_top_item = ImageFont.load_default()
-                        font_type_large = ImageFont.load_default()
-                        font_type_desc = ImageFont.load_default()
-                        font_footer = ImageFont.load_default()
+                    font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
+                    font_journey = ImageFont.truetype(font_path_regular, 40)
+                    font_header_medium = ImageFont.truetype(font_path_regular, 30)
+                    font_total_count = ImageFont.truetype(font_path_bold, 100)
+                    font_section_title = ImageFont.truetype(font_path_regular, 35)
+                    font_top_item = ImageFont.truetype(font_path_regular, 40)
+                    font_type_large = ImageFont.truetype(font_path_bold, 80)
+                    font_type_desc = ImageFont.truetype(font_path_regular, 35)
+                    font_footer = ImageFont.truetype(font_path_regular, 25)
 
                 except Exception as e:
-                    st.error(f"Error loading fonts: {e}. Menggunakan font default.")
-                    font_ferizy_logo = ImageFont.load_default()
-                    font_journey = ImageFont.load_default()
-                    font_header_medium = ImageFont.load_default()
-                    font_total_count = ImageFont.load_default()
-                    font_section_title = ImageFont.load_default()
-                    font_top_item = ImageFont.load_default()
-                    font_type_large = ImageFont.load_default()
-                    font_type_desc = ImageFont.load_default()
-                    font_footer = ImageFont.load_default()
+                    font_ferizy_logo = font_journey = font_header_medium = font_total_count = font_section_title = font_top_item = font_type_large = font_type_desc = font_footer = ImageFont.load_default()
 
                 text_color_white = (255, 255, 255)
-                text_color_grey = (200, 200, 200) # Untuk teks sub-judul
-                text_color_yellow = (255, 215, 0) # Untuk 'Nokturnal'
+                text_color_grey = (200, 200, 200)
+                text_color_yellow = (255, 215, 0) 
 
-                # Posisi awal teks
+                # Posisi Teks
                 y_offset = 60
                 left_margin = 60
 
                 # ferizy logo
                 draw.text((left_margin, y_offset), "ferizy", fill=text_color_white, font=font_ferizy_logo)
-                y_offset += 85 # Spasi
+                y_offset += 85 
                 draw.text((left_margin, y_offset), "JOURNEY 2025", fill=text_color_white, font=font_journey)
                 y_offset += 120
 
@@ -185,10 +177,11 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 draw.text((img_width - left_margin - 300, img_height - 60), "https://s.id/FerizyJourney", fill=text_color_grey, font=font_footer)
 
 
-                # Simpan gambar ke buffer dan tampilkan di Streamlit
+                # Simpan gambar ke buffer dan tampilkan
                 img_buffer = io.BytesIO()
-                image.save(img_buffer, format="PNG")
-                img_buffer.seek(0) # Kembali ke awal buffer
+                # Simpan sebagai PNG agar kualitas teks tetap bagus
+                image.save(img_buffer, format="PNG") 
+                img_buffer.seek(0) 
 
                 st.markdown("## ✨ Rekap Ferizy Journey 2025 Anda (Gambar)")
                 st.image(img_buffer, caption="Rekap Perjalanan Ferizy Anda", use_column_width=True)
@@ -202,7 +195,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 )
 
                 st.markdown("---")
-                # --- Tampilkan Data Mentah dan Download CSV (Seperti Kode Awal) ---
+                # --- Tampilkan Data Mentah ---
                 
                 df.drop(columns=["Jadwal", "Jam_Keberangkatan"], inplace=True)
                 
