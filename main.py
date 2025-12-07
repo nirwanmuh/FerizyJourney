@@ -14,32 +14,35 @@ if st.button("Scrape"):
         try:
             soup = BeautifulSoup(html_input, "html.parser")
             
-            # Ambil semua elemen class 'flex'
-            flex_elements = soup.find_all(class_="flex")
+            # Ambil semua div yang memiliki class flex di dalamnya
+            div_elements = soup.find_all("div", {"data-v-28aa75d9": True})
             
-            if not flex_elements:
-                st.warning("Tidak ditemukan elemen dengan class 'flex'.")
-            else:
-                data = []
-                for elem in flex_elements:
-                    # Ambil port-origin dan port-destination
-                    origin = elem.find(class_="port-origin font-semibold")
-                    destination = elem.find(class_="port-destination font-semibold")
-                    lintasan = ""
-                    if origin and destination:
-                        lintasan = f"{origin.get_text(strip=True)} - {destination.get_text(strip=True)}"
-                    
-                    # Ambil jadwal (span dengan attribute tertentu)
-                    jadwal_elem = elem.find("span", {"data-v-28aa75d9": True})
-                    jadwal = jadwal_elem.get_text(strip=True) if jadwal_elem else ""
-                    
+            data = []
+            for div in div_elements:
+                # Ambil lintasan
+                origin = div.find("span", class_="port-origin font-semibold")
+                destination = div.find("span", class_="port-destination font-semibold")
+                lintasan = ""
+                if origin and destination:
+                    lintasan = f"{origin.get_text(strip=True)} - {destination.get_text(strip=True)}"
+                
+                # Ambil jadwal (span langsung di bawah div, bukan span nested)
+                jadwal_span = div.find("span", class_="", recursive=False)
+                jadwal = ""
+                if jadwal_span:
+                    # Ambil hanya teks langsung di span, tanpa teks dari span nested
+                    jadwal = ''.join(jadwal_span.find_all(text=True, recursive=False)).strip()
+                
+                if lintasan or jadwal:
                     data.append({
                         "Lintasan": lintasan,
                         "Jadwal": jadwal
                     })
-                
+            
+            if not data:
+                st.warning("Tidak ditemukan data lintasan/jadwal.")
+            else:
                 df = pd.DataFrame(data)
-                
                 st.write(f"Ditemukan {len(data)} jadwal")
                 st.dataframe(df)
                 
