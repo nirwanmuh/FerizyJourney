@@ -67,7 +67,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 # Jika tidak ada data di tahun 2025, tampilkan peringatan dan HENTIKAN eksekusi
                 if df_filtered.empty:
                     st.warning("Tidak ditemukan perjalanan Ferizy yang valid di tahun **2025** setelah pemfilteran.")
-                    st.stop() # <-- SOLUSI: Menggunakan st.stop()
+                    st.stop()
                 
                 # Lanjutkan dengan dataframe yang sudah difilter
                 df = df_filtered
@@ -179,7 +179,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 image.save(img_buffer, format="PNG")
                 img_buffer.seek(0)
 
-                st.markdown("## ✨ Rekap Ferizy Journey 2025 Anda (Gambar)")
+                st.markdown("## ✨ Rekap Ferizy Journey 2025 Anda")
                 st.image(img_buffer, caption=f"Rekap Perjalanan Ferizy Anda di tahun 2025 ({total_perjalanan} Perjalanan)", use_column_width=True)
 
                 # Tambahkan tombol download gambar
@@ -193,7 +193,8 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 st.markdown("---")
                 # --- Tampilkan Data Mentah ---
                 
-                df.drop(columns=["Jadwal", "Jam_Keberangkatan", "Jam"], inplace=True)
+                # HANYA DROP kolom yang benar-benar tidak perlu ditampilkan
+                df.drop(columns=["Jadwal", "Jam_Keberangkatan"], inplace=True)
                 
                 st.write(f"Ditemukan **{total_perjalanan}** jadwal yang valid di tahun **2025**.")
                 st.dataframe(df)
