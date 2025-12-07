@@ -120,7 +120,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
                     font_journey = ImageFont.truetype(font_path_regular, 40)
                     font_header_medium = ImageFont.truetype(font_path_regular, 30)
-                    font_total_count = ImageFont.truetype(font_path_bold, 100)
+                    font_total_count = ImageFont.truetype(font_path_bold, 105px)
                     font_section_title = ImageFont.truetype(font_path_regular, 35)
                     font_top_item = ImageFont.truetype(font_path_regular, 40)
                     font_type_large = ImageFont.truetype(font_path_bold, 80)
@@ -139,16 +139,16 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 left_margin = 60
 
                 # ferizy logo
-                draw.text((left_margin, y_offset), "ferizy", fill=text_color_white, font=font_ferizy_logo)
-                y_offset += 85 
-                draw.text((left_margin, y_offset), "JOURNEY 2025", fill=text_color_white, font=font_journey)
-                y_offset += 120
+                #draw.text((left_margin, y_offset), "ferizy", fill=text_color_white, font=font_ferizy_logo)
+                #y_offset += 85 
+                #draw.text((left_margin, y_offset), "JOURNEY 2025", fill=text_color_white, font=font_journey)
+                #y_offset += 120
 
                 # "Tahun ini kamu udah nyebrang..."
-                draw.text((left_margin, y_offset), "Tahun ini kamu udah nyebrang", fill=text_color_white, font=font_header_medium)
-                y_offset += 40
-                draw.text((left_margin, y_offset), "sama ferizy sebanyak", fill=text_color_white, font=font_header_medium)
-                y_offset += 80
+                #draw.text((left_margin, y_offset), "Tahun ini kamu udah nyebrang", fill=text_color_white, font=font_header_medium)
+                #y_offset += 40
+                #draw.text((left_margin, y_offset), "sama ferizy sebanyak", fill=text_color_white, font=font_header_medium)
+                #y_offset += 80
 
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
