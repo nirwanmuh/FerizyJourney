@@ -84,11 +84,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     background_img = background_img.resize((img_width, img_height))
                     
                     image = background_img.copy()
-                    
-                    # Tambahkan overlay hitam semi-transparan agar teks putih lebih jelas
-                    overlay = Image.new('RGBA', image.size, (0, 0, 0, 150)) 
-                    image.paste(overlay, (0, 0), overlay)
-                    
+                                        
                     st.success(f"Berhasil memuat gambar background dari: {BACKGROUND_IMAGE_PATH}")
                     
                 except FileNotFoundError:
