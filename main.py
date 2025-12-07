@@ -122,8 +122,8 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     font_header_medium = ImageFont.truetype(font_path_regular, 30)
                     font_total_count = ImageFont.truetype(font_path_bold, 105)
                     font_section_title = ImageFont.truetype(font_path_regular, 35)
-                    font_top_item = ImageFont.truetype(font_path_regular, 40)
-                    font_type_large = ImageFont.truetype(font_path_bold, 80)
+                    font_top_item = ImageFont.truetype(font_path_regular, 45)
+                    font_type_large = ImageFont.truetype(font_path_bold, 105)
                     font_type_desc = ImageFont.truetype(font_path_regular, 35)
                     font_footer = ImageFont.truetype(font_path_regular, 25)
 
@@ -152,25 +152,27 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
-                y_offset += 50
+                #y_offset += 50
 
                 # TOP LINTASANMU
-                draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
-                y_offset += 50
+                #draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
+                #y_offset += 50
+                y_offset = 960
                 for i, (lintasan, count) in enumerate(top_lintasan.items()):
                     draw.text((left_margin, y_offset), f"{i+1}. {lintasan} : {count} Kali", fill=text_color_white, font=font_top_item)
-                    y_offset += 55
-                y_offset += 50
+                    y_offset += 10
+                #y_offset += 50
 
                 # Tipe Kamu
-                draw.text((left_margin, y_offset), "Tipe Kamu", fill=text_color_grey, font=font_section_title)
-                y_offset += 50
-                draw.text((left_margin, y_offset), tipe_kamu.upper(), fill=text_color_yellow, font=font_type_large)
+                #draw.text((left_margin, y_offset), "Tipe Kamu", fill=text_color_grey, font=font_section_title)
+                #y_offset += 50
+                y_offset = 1338
+                draw.text((left_margin, y_offset), tipe_kamu.upper(), fill=text_color_white, font=font_type_large)
                 y_offset += 80
                 draw.text((left_margin, y_offset), deskripsi_tipe, fill=text_color_white, font=font_type_desc)
                 
                 # Footer
-                draw.text((img_width - left_margin - 300, img_height - 60), "https://s.id/FerizyJourney", fill=text_color_grey, font=font_footer)
+                #draw.text((img_width - left_margin - 300, img_height - 60), "https://s.id/FerizyJourney", fill=text_color_grey, font=font_footer)
 
 
                 # Simpan gambar ke buffer dan tampilkan
