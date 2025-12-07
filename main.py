@@ -120,7 +120,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                     font_ferizy_logo = ImageFont.truetype(font_path_bold, 80)
                     font_journey = ImageFont.truetype(font_path_regular, 40)
                     font_header_medium = ImageFont.truetype(font_path_regular, 30)
-                    font_total_count = ImageFont.truetype(font_path_bold, 1000)
+                    font_total_count = ImageFont.truetype(font_path_bold, 105)
                     font_section_title = ImageFont.truetype(font_path_regular, 35)
                     font_top_item = ImageFont.truetype(font_path_regular, 40)
                     font_type_large = ImageFont.truetype(font_path_bold, 80)
@@ -152,7 +152,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 # Jumlah Total Perjalanan
                 draw.text((left_margin, y_offset), f"{total_perjalanan} Kali", fill=text_color_white, font=font_total_count)
-                y_offset += 150
+                y_offset += 200
 
                 # TOP LINTASANMU
                 draw.text((left_margin, y_offset), "TOP LINTASANMU", fill=text_color_grey, font=font_section_title)
