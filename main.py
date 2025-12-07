@@ -6,8 +6,8 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 
 st.set_page_config(layout="centered")
-st.set_page_config(page_title="Ferizy Journey")
-st.title("Ferizy Journey")
+st.set_page_config(page_title="Ferizy Journey 2025")
+st.title("Ferizy Journey 2025")
 st.markdown("---")
 
 # Text area untuk paste HTML
