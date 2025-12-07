@@ -2,12 +2,12 @@ import streamlit as st
 from bs4 import BeautifulSoup
 import pandas as pd
 
-st.title("Web Scraping Lintasan & Jadwal dari HTML")
+st.title("Web Scraping Lintasan & Jadwal dari HTML (Normalisasi)")
 
 # Text area untuk paste HTML
 html_input = st.text_area("Paste HTML di sini:")
 
-if st.button("Scrape"):
+if st.button("Scrape & Normalisasi"):
     if not html_input.strip():
         st.error("Silakan masukkan HTML terlebih dahulu!")
     else:
@@ -33,17 +33,21 @@ if st.button("Scrape"):
                     # Ambil hanya teks langsung di span, tanpa teks dari span nested
                     jadwal = ''.join(jadwal_span.find_all(text=True, recursive=False)).strip()
                 
-                if lintasan or jadwal:
-                    data.append({
-                        "Lintasan": lintasan,
-                        "Jadwal": jadwal
-                    })
+                data.append({
+                    "Lintasan": lintasan,
+                    "Jadwal": jadwal
+                })
             
-            if not data:
-                st.warning("Tidak ditemukan data lintasan/jadwal.")
+            # Buat DataFrame
+            df = pd.DataFrame(data)
+            
+            # Normalisasi: hapus row dengan jadwal kosong
+            df = df[df["Jadwal"] != ""].reset_index(drop=True)
+            
+            if df.empty:
+                st.warning("Tidak ditemukan data jadwal yang valid setelah normalisasi.")
             else:
-                df = pd.DataFrame(data)
-                st.write(f"Ditemukan {len(data)} jadwal")
+                st.write(f"Ditemukan {len(df)} jadwal setelah normalisasi")
                 st.dataframe(df)
                 
                 # Download CSV
@@ -51,7 +55,7 @@ if st.button("Scrape"):
                 st.download_button(
                     label="Download CSV",
                     data=csv,
-                    file_name="jadwal.csv",
+                    file_name="jadwal_normalized.csv",
                     mime="text/csv"
                 )
         except Exception as e:
