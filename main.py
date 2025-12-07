@@ -58,16 +58,16 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 
                 # --- START: PERUBAHAN UTAMA UNTUK FILTER TAHUN 2025 ---
                 
-                # Konversi Tanggal ke datetime untuk pemfilteran yang lebih baik (jika perlu)
+                # Konversi Tanggal ke datetime untuk pemfilteran yang lebih baik
                 df['Tanggal_DT'] = pd.to_datetime(df['Tanggal'], errors='coerce')
                 
                 # Filter hanya perjalanan di tahun 2025
                 df_filtered = df[df['Tanggal_DT'].dt.year == 2025].copy()
                 
-                # Jika tidak ada data di tahun 2025, tampilkan peringatan dan keluar
+                # Jika tidak ada data di tahun 2025, tampilkan peringatan dan HENTIKAN eksekusi
                 if df_filtered.empty:
                     st.warning("Tidak ditemukan perjalanan Ferizy yang valid di tahun **2025** setelah pemfilteran.")
-                    return
+                    st.stop() # <-- SOLUSI: Menggunakan st.stop()
                 
                 # Lanjutkan dengan dataframe yang sudah difilter
                 df = df_filtered
@@ -84,7 +84,6 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 df["Jam_Keberangkatan"] = pd.to_datetime(df["Jam"], format='%H:%M', errors='coerce').dt.hour
                 
                 # Hitung perjalanan antara jam 18:00 (6 sore) hingga 05:00 (5 pagi)
-                # Jam 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5
                 nocturnal_count = df[
                     (df["Jam_Keberangkatan"] >= 18) | (df["Jam_Keberangkatan"] <= 5)
                 ].shape[0]
@@ -134,7 +133,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
 
                 draw = ImageDraw.Draw(image)
 
-                # Load Font (Pastikan file font tersedia jika tidak ingin menggunakan default)
+                # Load Font
                 try:
                     font_path_bold = "Montserrat-Black.ttf"
                     font_path_regular = "Montserrat-Regular.ttf"
@@ -156,7 +155,7 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 text_color_grey = (200, 200, 200)
                 text_color_yellow = (255, 215, 0)
 
-                # Posisi Teks (Diasumsikan sama karena Anda hanya memfilter data)
+                # Posisi Teks
                 y_offset = 535
                 left_margin = 50
 
