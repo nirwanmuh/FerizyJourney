@@ -194,18 +194,18 @@ if st.button("Scrape & Generate Gambar Rekap"):
                 st.markdown("---")
                 # --- Tampilkan Data Mentah ---
                 
-                #df.drop(columns=["Jadwal", "Jam_Keberangkatan", "Jam"], inplace=True)
+                df.drop(columns=["Jadwal", "Jam_Keberangkatan", "Jam"], inplace=True)
                 
-                #st.write(f"Ditemukan **{total_perjalanan}** jadwal yang valid di tahun **2025**.")
-                #st.dataframe(df)
-                #
-                #csv = df.to_csv(index=False).encode('utf-8')
-                #st.download_button(
-                #    label="Download CSV Data Perjalanan 2025",
-                #    data=csv,
-                #    file_name="jadwal_2025_normalized.csv",
-                #    mime="text/csv"
-                #)
+                st.write(f"Ditemukan **{total_perjalanan}** jadwal yang valid di tahun **2025**.")
+                st.dataframe(df)
+                
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="Download CSV Data Perjalanan 2025",
+                    data=csv,
+                    file_name="jadwal_2025_normalized.csv",
+                    mime="text/csv"
+                )
             else:
                 st.warning("Tidak ditemukan data jadwal yang valid.")
         except Exception as e:
