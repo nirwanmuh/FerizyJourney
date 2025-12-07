@@ -14,7 +14,7 @@ st.markdown("---")
 html_input = st.text_area("Paste HTML Riwayat Perjalanan Ferizy di sini:")
 
 # GANTI NAMA FILE INI DENGAN NAMA FILE .JPG BACKGROUND ANDA YANG SEBENARNYA
-BACKGROUND_IMAGE_PATH = "my_background.jpg" 
+BACKGROUND_IMAGE_PATH = "FerizyJourney2025.jpg" 
 # Pastikan file .jpg ada di folder yang sama!
 
 if st.button("Scrape & Generate Gambar Rekap"):
