@@ -144,7 +144,7 @@ if st.button("Generate"):
                     font_total_count = ImageFont.truetype(font_path_bold, 105)
                     font_section_title = ImageFont.truetype(font_path_regular, 35)
                     font_top_item = ImageFont.truetype(font_path_regular, 45)
-                    font_type_large = ImageFont.truetype(font_path_bold, 105)
+                    font_type_large = ImageFont.truetype(font_path_bold, 95)
                     font_type_desc = ImageFont.truetype(font_path_regular, 35)
                     font_footer = ImageFont.truetype(font_path_regular, 25)
 
